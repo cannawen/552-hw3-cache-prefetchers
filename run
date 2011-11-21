@@ -1,3 +1,5 @@
+make sim-cache
+
 ./sim-cache -config cache-config/cache-lru-stride.cfg /cad2/ece552f/benchmarks/compress.eio
 
 ./sim-cache -config cache-config/cache-lru-stride.cfg /cad2/ece552f/benchmarks/gcc.eio
