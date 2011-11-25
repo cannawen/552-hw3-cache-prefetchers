@@ -327,4 +327,45 @@ cache_flush_addr(struct cache_t *cp,	/* cache instance to flush */
 		 md_addr_t addr,	/* address of block to flush */
 		 tick_t now);		/* time of cache flush */
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ECE552 Assignment 3 - BEGIN CODE*/
+
+RPTLine* RPT;
+
+struct RPTLine
+{
+    int tag;
+    int prev_addr;
+    int stride;
+    int state;
+}
+
+/* ECE552 Assignment 3 - END CODE*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif /* CACHE_H */

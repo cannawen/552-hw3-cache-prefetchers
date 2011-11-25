@@ -408,6 +408,14 @@ cache_create(char *name,		/* name of the cache */
 	    cp->sets[i].way_tail = blk;
 	}
     }
+  
+  /* ECE552 Assignment 3 - BEGIN CODE*/
+  
+  //if stride, create the RPT
+  if(prefetch_type>2)
+      RPT = malloc(RPTLine[prefetch_type]);
+      
+  /* ECE552 Assignment 3 - END CODE*/
   return cp;
 }
 
@@ -511,8 +519,12 @@ cache_reg_stats(struct cache_t *cp,	/* cache instance */
 void next_line_prefetcher(struct cache_t *cp, md_addr_t addr) {
 
     //is the next block contaied in the cache already?
-   if (cache_probe(cp, addr + cp->bsize))
-           return;//if so, no need to prefetch
+   //if (cache_probe(cp, addr + cp->bsize))
+   //        return;//if so, no need to prefetch
+   
+   //This changes the answer though: Maybe the cahce_access touches the block
+   //so it changes the replacement policy?
+   //Probe is a debug function anyways, so we won't use it here
    
    //if next block is not in cache already, prefetch it
    cache_access(cp, Read, addr + cp->bsize, NULL, 1, (tick_t) 0, NULL, NULL, 1);
@@ -521,13 +533,14 @@ void next_line_prefetcher(struct cache_t *cp, md_addr_t addr) {
 
 /* Open Ended Prefetcher */
 void open_ended_prefetcher(struct cache_t *cp, md_addr_t addr) {
-
+    
 }
 
 /* Stride Prefetcher */
 void stride_prefetcher(struct cache_t *cp, md_addr_t addr) {
 
-
+    
+    //cp->prefetch_type is number of entries in the RPT
 
 }
 
