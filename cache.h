@@ -342,11 +342,6 @@ cache_flush_addr(struct cache_t *cp,	/* cache instance to flush */
 
 /* ECE552 Assignment 3 - BEGIN CODE*/
 
-RPTLine* RPT;
-
-int mask; // mask for getting the PC tag
-int power; //2^power = number of lines
-
 struct RPTLine
 {
     int tag;
@@ -354,6 +349,14 @@ struct RPTLine
     int stride;
     int state;
 };
+
+
+struct RPTLine *RPT;
+
+int mask; // mask for getting the PC tag
+int power; //2^power = number of lines
+
+
 
 /* ECE552 Assignment 3 - END CODE*/
 

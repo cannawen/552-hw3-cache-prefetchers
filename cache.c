@@ -552,7 +552,7 @@ void stride_prefetcher(struct cache_t *cp, md_addr_t addr) {
 
 	md_addr_t PC = get_PC() >> 3;
 	int PCindex = (int)PC & mask;
-	if (RPT[PCindex]->tag==(unsigned int)PC>>power)//if block is in cache
+	if (RPT[PCindex].tag==(unsigned int)PC>>power)//if block is in cache
 		;
     //cp->prefetch_type is number of entries in the RPT
 
