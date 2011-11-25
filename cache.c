@@ -2,20 +2,20 @@
 
 /* SimpleScalar(TM) Tool Suite
  * Copyright (C) 1994-2003 by Todd M. Austin, Ph.D. and SimpleScalar, LLC.
- * All Rights Reserved. 
- * 
+ * All Rights Reserved.
+ *
  * THIS IS A LEGAL DOCUMENT, BY USING SIMPLESCALAR,
  * YOU ARE AGREEING TO THESE TERMS AND CONDITIONS.
- * 
+ *
  * No portion of this work may be used by any commercial entity, or for any
  * commercial purpose, without the prior, written permission of SimpleScalar,
  * LLC (info@simplescalar.com). Nonprofit and noncommercial use is permitted
  * as described below.
- * 
+ *
  * 1. SimpleScalar is provided AS IS, with no warranty of any kind, express
  * or implied. The user of the program accepts full responsibility for the
  * application of the program and the use of any results.
- * 
+ *
  * 2. Nonprofit and noncommercial use is encouraged. SimpleScalar may be
  * downloaded, compiled, executed, copied, and modified solely for nonprofit,
  * educational, noncommercial research, and noncommercial scholarship
@@ -24,13 +24,13 @@
  * solely for nonprofit, educational, noncommercial research, and
  * noncommercial scholarship purposes provided that this notice in its
  * entirety accompanies all copies.
- * 
+ *
  * 3. ALL COMMERCIAL USE, AND ALL USE BY FOR PROFIT ENTITIES, IS EXPRESSLY
  * PROHIBITED WITHOUT A LICENSE FROM SIMPLESCALAR, LLC (info@simplescalar.com).
- * 
+ *
  * 4. No nonprofit user may place any restrictions on the use of this software,
  * including as modified by the user, by any other authorized user.
- * 
+ *
  * 5. Noncommercial and nonprofit users may distribute copies of SimpleScalar
  * in compiled or executable form as set forth in Section 2, provided that
  * either: (A) it is accompanied by the corresponding machine-readable source
@@ -40,11 +40,11 @@
  * must permit verbatim duplication by anyone, or (C) it is distributed by
  * someone who received only the executable form, and is accompanied by a
  * copy of the written offer of source code.
- * 
+ *
  * 6. SimpleScalar was developed by Todd M. Austin, Ph.D. The tool suite is
  * currently maintained by SimpleScalar LLC (info@simplescalar.com). US Mail:
  * 2395 Timbercrest Court, Ann Arbor, MI 48105.
- * 
+ *
  * Copyright (C) 1994-2003 by Todd M. Austin, Ph.D. and SimpleScalar, LLC.
  */
 
@@ -378,7 +378,7 @@ cache_create(char *name,		/* name of the cache */
 	 otherwise, block accesses through SET->BLKS will fail (used
 	 during random replacement selection) */
       cp->sets[i].blks = CACHE_BINDEX(cp, cp->data, bindex);
-      
+
       /* link the data blocks into ordered way chain and hash table bucket
          chains, if hash table exists */
       for (j=0; j<assoc; j++)
@@ -388,7 +388,7 @@ cache_create(char *name,		/* name of the cache */
 	  bindex++;
 
 	  /* invalidate new cache block */
-	  blk->status = 0;		
+	  blk->status = 0;
 	  blk->tag = 0;
 	  blk->ready = 0;
 	  blk->user_data = (usize != 0
@@ -408,13 +408,24 @@ cache_create(char *name,		/* name of the cache */
 	    cp->sets[i].way_tail = blk;
 	}
     }
-  
+
   /* ECE552 Assignment 3 - BEGIN CODE*/
-  
+
   //if stride, create the RPT
   if(prefetch_type>2)
-      RPT = malloc(RPTLine[prefetch_type]);
-      
+  {
+	  //dynamically allocate the correct number of RPT entries
+	  RPT = malloc(RPTLine[prefetch_type]);
+	  double i;
+	  mask=2;//mask is for which bits of the PC correspond to the tag
+	  power = 1;
+	  for(i=prefetch_type;t>2;i=i/2)
+	  {
+		  mask=mask*2; // Add a 1 for each multiple of 2
+		  power++;//2^power = number of lines
+	  }
+	  mask = mask-1;//to make it all 1's
+  }
   /* ECE552 Assignment 3 - END CODE*/
   return cp;
 }
@@ -501,7 +512,7 @@ cache_reg_stats(struct cache_t *cp,	/* cache instance */
   sprintf(buf, "%s.read_miss_rate", name);
   sprintf(buf1, "%s.read_misses / %s.read_accesses", name, name);
   stat_reg_formula(sdb, buf, "read miss rate", buf1, NULL);
-  
+
   sprintf(buf, "%s.prefetch_accesses", name);
   sprintf(buf1, "%s.prefetch_hits +  %s.prefetch_misses", name, name);
   stat_reg_formula(sdb, buf, "total number of prefetch accesses", buf1, "%12.0f");//THIS IS ZERO
@@ -521,11 +532,11 @@ void next_line_prefetcher(struct cache_t *cp, md_addr_t addr) {
     //is the next block contaied in the cache already?
    //if (cache_probe(cp, addr + cp->bsize))
    //        return;//if so, no need to prefetch
-   
+
    //This changes the answer though: Maybe the cahce_access touches the block
    //so it changes the replacement policy?
    //Probe is a debug function anyways, so we won't use it here
-   
+
    //if next block is not in cache already, prefetch it
    cache_access(cp, Read, addr + cp->bsize, NULL, 1, (tick_t) 0, NULL, NULL, 1);
 
@@ -533,13 +544,16 @@ void next_line_prefetcher(struct cache_t *cp, md_addr_t addr) {
 
 /* Open Ended Prefetcher */
 void open_ended_prefetcher(struct cache_t *cp, md_addr_t addr) {
-    
+
 }
 
 /* Stride Prefetcher */
 void stride_prefetcher(struct cache_t *cp, md_addr_t addr) {
 
-    
+	md_addr_t PC = get_PC() >> 3;
+	int PCindex = (int)PC & mask;
+	if (RPT[PCindex]->tag==(unsigned int)PC>>power)//if block is in cache
+		;
     //cp->prefetch_type is number of entries in the RPT
 
 }
@@ -635,7 +649,7 @@ cache_access(struct cache_t *cp,	/* cache to access */
       blk = cp->last_blk;
       goto cache_fast_hit;
     }
-    
+
   if (cp->hsize)
     {
       /* higly-associativity cache, access through the per-set hash tables */
@@ -668,7 +682,7 @@ cache_access(struct cache_t *cp,	/* cache to access */
 
      cp->misses++;
 
-     if (cmd == Read) {	
+     if (cmd == Read) {
 	cp->read_misses++;
      }
   }
@@ -710,13 +724,13 @@ cache_access(struct cache_t *cp,	/* cache to access */
 
       if (repl_addr)
 	*repl_addr = CACHE_MK_BADDR(cp, repl->tag, set);
- 
+
       /* don't replace the block until outstanding misses are satisfied */
       lat += BOUND_POS(repl->ready - now);
- 
+
       /* stall until the bus to next level of memory is available */
       lat += BOUND_POS(cp->bus_free - (now + lat));
- 
+
       /* track bus resource usage */
       cp->bus_free = MAX(cp->bus_free, (now + lat)) + 1;
 
@@ -768,13 +782,13 @@ cache_access(struct cache_t *cp,	/* cache to access */
 
 
  cache_hit: /* slow hit handler */
-  
+
   /* **HIT** */
   if (prefetch == 0) {
 
      cp->hits++;
 
-     if (cmd == Read) {	
+     if (cmd == Read) {
 	   cp->read_hits++;
      }
   }
@@ -819,13 +833,13 @@ cache_access(struct cache_t *cp,	/* cache to access */
   return (int) MAX(cp->hit_latency, (blk->ready - now));
 
  cache_fast_hit: /* fast hit handler */
-  
+
   /* **FAST HIT** */
   if (prefetch == 0) {
-     
+
      cp->hits++;
 
-     if (cmd == Read) {	
+     if (cmd == Read) {
         cp->read_hits++;
      }
   }
@@ -881,11 +895,11 @@ cache_probe(struct cache_t *cp,		/* cache instance to probe */
   {
     /* higly-associativity cache, access through the per-set hash tables */
     int hindex = CACHE_HASH(cp, tag);
-    
+
     for (blk=cp->sets[set].hash[hindex];
 	 blk;
 	 blk=blk->hash_next)
-    {	
+    {
       if (blk->tag == tag && (blk->status & CACHE_BLK_VALID))
 	  return TRUE;
     }
@@ -901,7 +915,7 @@ cache_probe(struct cache_t *cp,		/* cache instance to probe */
 	  return TRUE;
     }
   }
-  
+
   /* cache block not found */
   return FALSE;
 }
