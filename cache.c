@@ -466,10 +466,10 @@ cache_reg_stats(struct cache_t *cp,	/* cache instance */
 		 &cp->replacements, 0, NULL);
   sprintf(buf, "%s.writebacks", name);
   stat_reg_counter(sdb, buf, "total number of writebacks",
-		 &cp->writebacks, 0, NULL);
+		 &cp->writebacks, 0, NULL);//THIS IS ZERO
   sprintf(buf, "%s.invalidations", name);
   stat_reg_counter(sdb, buf, "total number of invalidations",
-		 &cp->invalidations, 0, NULL);
+		 &cp->invalidations, 0, NULL);//THIS IS ZERO
   sprintf(buf, "%s.miss_rate", name);
   sprintf(buf1, "%s.misses / %s.accesses", name, name);
   stat_reg_formula(sdb, buf, "miss rate (i.e., misses/ref)", buf1, NULL);
@@ -496,30 +496,42 @@ cache_reg_stats(struct cache_t *cp,	/* cache instance */
   
   sprintf(buf, "%s.prefetch_accesses", name);
   sprintf(buf1, "%s.prefetch_hits +  %s.prefetch_misses", name, name);
-  stat_reg_formula(sdb, buf, "total number of prefetch accesses", buf1, "%12.0f");
+  stat_reg_formula(sdb, buf, "total number of prefetch accesses", buf1, "%12.0f");//THIS IS ZERO
   sprintf(buf, "%s.prefetch_hits", name);
-  stat_reg_counter(sdb, buf, "total number of prefetch hits", &cp->prefetch_hits, 0, NULL);
+  stat_reg_counter(sdb, buf, "total number of prefetch hits", &cp->prefetch_hits, 0, NULL);//THIS IS ZERO
   sprintf(buf, "%s.prefetch_misses", name);
-  stat_reg_counter(sdb, buf, "total number of prefetch misses", &cp->prefetch_misses, 0, NULL);
+  stat_reg_counter(sdb, buf, "total number of prefetch misses", &cp->prefetch_misses, 0, NULL);//THIS IS ZERO
 
 
 }
 
+/* ECE552 Assignment 3 - BEGIN CODE*/
+
 /* Next Line Prefetcher */
 void next_line_prefetcher(struct cache_t *cp, md_addr_t addr) {
-	; 
+
+    //is the next block contaied in the cache already?
+   if (cache_probe(cp, addr + cp->bsize))
+           return;//if so, no need to prefetch
+   
+   //if next block is not in cache already, prefetch it
+   cache_access(cp, Read, addr + cp->bsize, NULL, 1, (tick_t) 0, NULL, NULL, 1);
+
 }
 
 /* Open Ended Prefetcher */
 void open_ended_prefetcher(struct cache_t *cp, md_addr_t addr) {
-	; 
+
 }
 
 /* Stride Prefetcher */
 void stride_prefetcher(struct cache_t *cp, md_addr_t addr) {
-	; 
+
+
+
 }
 
+/* ECE552 Assignment 3 - END CODE*/
 
 /* cache x might generate a prefetch after a regular cache access to address addr */
 void generate_prefetch(struct cache_t *cp, md_addr_t addr) {
