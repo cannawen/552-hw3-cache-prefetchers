@@ -424,7 +424,7 @@ cache_create(char *name,		/* name of the cache */
 		  PCmask=PCmask*2; // Add a 1 for each multiple of 2
 		  PCpower++;//2^power = number of lines
 	  }
-	  mask = mask-1;//to make it all 1's
+	  PCmask = PCmask-1;//to make it all 1's
   }
   /* ECE552 Assignment 3 - END CODE*/
   return cp;
@@ -581,7 +581,7 @@ void stride_prefetcher(struct cache_t *cp, md_addr_t addr) {
 				RPT[index].state = samestride ? 1 : 0;
 				break;
 			case 2://transient state
-				RPT[index].tate = samestride ? 1 : 3;
+				RPT[index].state = samestride ? 1 : 3;
 				break;
 			case 3://no pred
 				RPT[index].state = samestride ? 2 : 3;
@@ -598,7 +598,7 @@ void stride_prefetcher(struct cache_t *cp, md_addr_t addr) {
 	}
 	else//block is not in RPT
 	{
-		RPTSet(&(RPT[index]),tag,PC,0,0);
+		RPTSet(&(RPT[index]),PC>>PCpower,PC,0,0);
 	}
 }
 
