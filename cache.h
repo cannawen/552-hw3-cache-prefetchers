@@ -353,8 +353,8 @@ struct RPTLine
 
 struct RPTLine *RPT;
 
-int mask; // mask for getting the PC tag
-int power; //2^power = number of lines
+int PCmask; // mask for getting the PC tag
+int PCpower; //2^power = number of lines
 
 /* ECE552 Assignment 3 - END CODE*/
 
