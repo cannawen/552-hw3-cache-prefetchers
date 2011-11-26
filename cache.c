@@ -417,12 +417,12 @@ cache_create(char *name,		/* name of the cache */
 	  //dynamically allocate the correct number of RPT entries
 	  RPT = malloc(sizeof(struct RPTLine)*prefetch_type);
 	  double i;
-	  mask=1;//mask is for which bits of the PC correspond to the tag
-	  power = 1;
+	  PCmask=1;//mask is for which bits of the PC correspond to the tag
+	  PCpower = 1;
 	  for(i=prefetch_type;i>1;i=i/2)
 	  {
-		  mask=mask*2; // Add a 1 for each multiple of 2
-		  power++;//2^power = number of lines
+		  PCmask=PCmask*2; // Add a 1 for each multiple of 2
+		  PCpower++;//2^power = number of lines
 	  }
 	  mask = mask-1;//to make it all 1's
   }
@@ -548,7 +548,7 @@ void open_ended_prefetcher(struct cache_t *cp, md_addr_t addr) {
 }
 void RPTSet(struct RPTLine *_rptline,int _tag,int _prev_addr,int _stride,int _state)
 {
-	_rptline->tag=tag;
+	_rptline->tag=_tag;
 	_rptline->prev_addr=_prev_addr;
 	_rptline->stride=_stride;
 	_rptline->state=_state;
@@ -557,46 +557,44 @@ void RPTSet(struct RPTLine *_rptline,int _tag,int _prev_addr,int _stride,int _st
 void stride_prefetcher(struct cache_t *cp, md_addr_t addr) {
 	//get rid of unused bottom bits
 	unsigned int PC = (unsigned int)get_PC() >> 3;
-	//calculate the tag of RPT
-	tag=PC>>PCpower;
 	//calculate the index of RPT
 	int index = PC & PCmask;
 
-	if (RPT[index].tag==tag)//if block is in RPT
+	if (RPT[index].tag==PC>>PCpower)//if block is in RPT
 	{
 		//the new stride we see
-		int newstride = PC - (RPT[index]->prev_addr);
+		int newstride = PC - (RPT[index].prev_addr);
 		//is new stride same as previous?
-		int samestride = (newstride==RPT[index]->stride);
+		int samestride = (newstride==RPT[index].stride);
 
 		//if you are in steady state, don't update stride.
-		if(RPT[index]->state!=1)
-			RPT[index]->stride = newstride;
+		if(RPT[index].state!=1)
+			RPT[index].stride = newstride;
 
 		//update state
-		switch(RPT[index]->state)
+		switch(RPT[index].state)
 		{
 			case 0://initial state
-				RPT[index]->state = samestride ? 1 : 2;
+				RPT[index].state = samestride ? 1 : 2;
 				break;
 			case 1://steady state
-				RPT[index]->state = samestride ? 1 : 0;
+				RPT[index].state = samestride ? 1 : 0;
 				break;
 			case 2://transient state
-				RPT[index]->state = samestride ? 1 : 3;
+				RPT[index].tate = samestride ? 1 : 3;
 				break;
 			case 3://no pred
-				RPT[index]->state = samestride ? 2 : 3;
+				RPT[index].state = samestride ? 2 : 3;
 				break;
 			default:
 				assert(-1);
 				break;
 		}
 		//if you are not in no-pred, go do a prefetch
-		if(RPT[index]->state!=3)
-			cache_access(cp, Read, addr + RPT[index]->stride, NULL, 1, (tick_t) 0, NULL, NULL, 1);
+		if(RPT[index].state!=3)
+			cache_access(cp, Read, addr + RPT[index].stride, NULL, 1, (tick_t) 0, NULL, NULL, 1);
 		//update prev_addr
-		RPT[index]->prev_addr=PC;
+		RPT[index].prev_addr=PC;
 	}
 	else//block is not in RPT
 	{
