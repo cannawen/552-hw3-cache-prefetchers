@@ -415,7 +415,7 @@ cache_create(char *name,		/* name of the cache */
   if(prefetch_type>2)
   {
 	  //dynamically allocate the correct number of RPT entries
-	  RPT = malloc(RPTLine[prefetch_type]);
+	  RPT = malloc(sizeof(RPTLine)*prefetch_type);
 	  double i;
 	  mask=2;//mask is for which bits of the PC correspond to the tag
 	  power = 1;
