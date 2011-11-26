@@ -419,7 +419,7 @@ cache_create(char *name,		/* name of the cache */
 	  double i;
 	  mask=2;//mask is for which bits of the PC correspond to the tag
 	  power = 1;
-	  for(i=prefetch_type;t>2;i=i/2)
+	  for(i=prefetch_type;i>2;i=i/2)
 	  {
 		  mask=mask*2; // Add a 1 for each multiple of 2
 		  power++;//2^power = number of lines
