@@ -224,23 +224,7 @@ struct cache_t
   struct cache_set_t sets[1];	/* each entry is a set */
 };
 
-/* ECE552 Assignment 3 - BEGIN CODE*/
 
-struct RPTLine
-{
-    int tag;
-    int prev_addr;
-    int stride;
-    int state;
-};
-
-
-struct RPTLine *RPT;
-
-int mask; // mask for getting the PC tag
-int power; //2^power = number of lines
-
-/* ECE552 Assignment 3 - END CODE*/
 
 /* create and initialize a general cache structure */
 struct cache_t *			/* pointer to cache created */
@@ -346,6 +330,33 @@ cache_flush_addr(struct cache_t *cp,	/* cache instance to flush */
 		 tick_t now);		/* time of cache flush */
 
 
+
+
+
+
+
+
+
+
+
+
+/* ECE552 Assignment 3 - BEGIN CODE*/
+
+struct RPTLine
+{
+    int tag;
+    int prev_addr;
+    int stride;
+    int state;
+};
+
+
+struct RPTLine *RPT;
+
+int mask; // mask for getting the PC tag
+int power; //2^power = number of lines
+
+/* ECE552 Assignment 3 - END CODE*/
 
 
 #endif /* CACHE_H */
