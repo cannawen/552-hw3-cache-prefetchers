@@ -572,7 +572,7 @@ void stride_prefetcher(struct cache_t *cp, md_addr_t addr) {
 	if (RPT[index].tag==PC>>PCpower)//if block is in RPT
 	{
 		//the new stride we see
-		int newstride = PC - (RPT[index].prev_addr);
+		int newstride = addr - (RPT[index].prev_addr);
 		//is new stride same as previous?
 		int samestride = (newstride==RPT[index].stride);
 
@@ -605,7 +605,8 @@ void stride_prefetcher(struct cache_t *cp, md_addr_t addr) {
 
 
 		//if you are not in no-pred, and the cahce is not in block then go do a prefetch.
-		if(RPT[index].state!=3 && !cache_probe(cp, addr + RPT[index].stride))
+		if(RPT[index].state!=3)
+				//&& !cache_probe(cp, addr + RPT[index].stride))
 		   cache_access(cp, Read, addr + RPT[index].stride, NULL, 1, (tick_t) 0, NULL, NULL, 1);
 	}
 	else//block is not in RPT
