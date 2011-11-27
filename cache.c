@@ -546,12 +546,8 @@ cache_reg_stats(struct cache_t *cp,	/* cache instance */
 void next_line_prefetcher(struct cache_t *cp, md_addr_t addr) {
 
     //is the next block contaied in the cache already?
-   //if (cache_probe(cp, addr + cp->bsize))
-   //        return;//if so, no need to prefetch
-
-   //This changes the answer though: Maybe the cahce_access touches the block
-   //so it changes the replacement policy?
-   //Probe is a debug function anyways, so we won't use it here
+   if (cache_probe(cp, addr + cp->bsize))
+           return;//if so, no need to prefetch
 
    //if next block is not in cache already, prefetch it
    cache_access(cp, Read, addr + cp->bsize, NULL, 1, (tick_t) 0, NULL, NULL, 1);
@@ -565,6 +561,11 @@ void open_ended_prefetcher(struct cache_t *cp, md_addr_t addr) {
 
 /* Stride Prefetcher */
 void stride_prefetcher(struct cache_t *cp, md_addr_t addr) {
+
+    //is the next block contaied in the cache already?
+   if (cache_probe(cp, addr + cp->bsize))
+           return;//if so, no need to prefetch
+
 	//get rid of unused bottom bits
 	unsigned int PC = (unsigned int)get_PC() >> 3;
 	//calculate the index of RPT
@@ -602,7 +603,7 @@ void stride_prefetcher(struct cache_t *cp, md_addr_t addr) {
 		}
 
 		//update prev_addr
-		RPT[index].prev_addr=PC;
+		RPT[index].prev_addr=addr;
 
 		//if you are not in no-pred, go do a prefetch
 		if(RPT[index].state!=3)
@@ -611,7 +612,7 @@ void stride_prefetcher(struct cache_t *cp, md_addr_t addr) {
 	else//block is not in RPT
 	{
 		RPT[index].tag=PC>>PCpower;
-		RPT[index].prev_addr=PC;
+		RPT[index].prev_addr=(int)addr;
 		RPT[index].state=0;
 		RPT[index].stride=0;
 	}
