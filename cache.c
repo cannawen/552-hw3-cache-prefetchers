@@ -426,6 +426,22 @@ cache_create(char *name,		/* name of the cache */
 	  }
 	  PCmask = PCmask-1;//to make it all 1's
   }
+
+  if(prefetch_type==1)//open prefetcher
+  {
+	  int lines = 256;
+	  //dynamically allocate the correct number of RPT entries
+	  RPT = malloc(sizeof(struct RPTLine)*lines);
+	  double i;
+	  PCmask=1;//mask is for which bits of the PC correspond to the tag
+	  PCpower = 1;
+	  for(i=lines;i>1;i=i/2)
+	  {
+		  PCmask=PCmask*2; // Add a 1 for each multiple of 2
+		  PCpower++;//2^power = number of lines
+	  }
+	  PCmask = PCmask-1;//to make it all 1's
+  }
   /* ECE552 Assignment 3 - END CODE*/
   return cp;
 }
@@ -544,15 +560,9 @@ void next_line_prefetcher(struct cache_t *cp, md_addr_t addr) {
 
 /* Open Ended Prefetcher */
 void open_ended_prefetcher(struct cache_t *cp, md_addr_t addr) {
+	stride_prefetcher(cp,addr);
+}
 
-}
-void RPTSet(struct RPTLine *_rptline,int _tag,int _prev_addr,int _stride,int _state)
-{
-	_rptline->tag=_tag;
-	_rptline->prev_addr=_prev_addr;
-	_rptline->stride=_stride;
-	_rptline->state=_state;
-}
 /* Stride Prefetcher */
 void stride_prefetcher(struct cache_t *cp, md_addr_t addr) {
 	//get rid of unused bottom bits
@@ -566,10 +576,6 @@ void stride_prefetcher(struct cache_t *cp, md_addr_t addr) {
 		int newstride = PC - (RPT[index].prev_addr);
 		//is new stride same as previous?
 		int samestride = (newstride==RPT[index].stride);
-
-		//if you are in steady state, don't update stride.
-		if(RPT[index].state!=1)
-			RPT[index].stride = newstride;
 
 		//update state
 		switch(RPT[index].state)
@@ -590,15 +596,24 @@ void stride_prefetcher(struct cache_t *cp, md_addr_t addr) {
 				assert(-1);
 				break;
 		}
+
+		//if you are not in steady state, update stride.
+		if(RPT[index].state!=1)
+			RPT[index].stride = newstride;
+
+		//update prev_addr
+		RPT[index].prev_addr=PC;
+
 		//if you are not in no-pred, go do a prefetch
 		if(RPT[index].state!=3)
 			cache_access(cp, Read, addr + RPT[index].stride, NULL, 1, (tick_t) 0, NULL, NULL, 1);
-		//update prev_addr
-		RPT[index].prev_addr=PC;
 	}
 	else//block is not in RPT
 	{
-		RPTSet(&(RPT[index]),PC>>PCpower,PC,0,0);
+		RPT[index].tag=PC>>PCpower;
+		RPT[index].prev_addr=PC;
+		RPT[index].state=0;
+		RPT[index].stride=0;
 	}
 }
 
