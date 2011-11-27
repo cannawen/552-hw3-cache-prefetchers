@@ -562,9 +562,7 @@ void open_ended_prefetcher(struct cache_t *cp, md_addr_t addr) {
 /* Stride Prefetcher */
 void stride_prefetcher(struct cache_t *cp, md_addr_t addr) {
 
-    //is the next block contaied in the cache already?
-   if (cache_probe(cp, addr + cp->bsize))
-           return;//if so, no need to prefetch
+
 
 	//get rid of unused bottom bits
 	unsigned int PC = (unsigned int)get_PC() >> 3;
@@ -605,9 +603,10 @@ void stride_prefetcher(struct cache_t *cp, md_addr_t addr) {
 		//update prev_addr
 		RPT[index].prev_addr=addr;
 
-		//if you are not in no-pred, go do a prefetch
-		if(RPT[index].state!=3)
-			cache_access(cp, Read, addr + RPT[index].stride, NULL, 1, (tick_t) 0, NULL, NULL, 1);
+
+		//if you are not in no-pred, and the cahce is not in block then go do a prefetch.
+		if(RPT[index].state!=3 && !cache_probe(cp, addr + RPT[index].stride))
+		   cache_access(cp, Read, addr + RPT[index].stride, NULL, 1, (tick_t) 0, NULL, NULL, 1);
 	}
 	else//block is not in RPT
 	{
