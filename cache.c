@@ -427,9 +427,9 @@ cache_create(char *name,		/* name of the cache */
 	  PCmask = PCmask-1;//to make it all 1's
   }
 
-  if(prefetch_type==1)//open prefetcher
+  if(prefetch_type==2)//open prefetcher
   {
-	  int lines = 256;
+	  int lines = 16;
 	  //dynamically allocate the correct number of RPT entries
 	  RPT = malloc(sizeof(struct RPTLine)*lines);
 	  double i;
@@ -577,6 +577,10 @@ void stride_prefetcher(struct cache_t *cp, md_addr_t addr) {
 		//is new stride same as previous?
 		int samestride = (newstride==RPT[index].stride);
 
+		//if you are not in steady state, update stride.
+		if(RPT[index].state!=1)
+			RPT[index].stride = newstride;
+
 		//update state
 		switch(RPT[index].state)
 		{
@@ -596,10 +600,6 @@ void stride_prefetcher(struct cache_t *cp, md_addr_t addr) {
 				assert(-1);
 				break;
 		}
-
-		//if you are not in steady state, update stride.
-		if(RPT[index].state!=1)
-			RPT[index].stride = newstride;
 
 		//update prev_addr
 		RPT[index].prev_addr=PC;
