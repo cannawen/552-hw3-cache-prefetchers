@@ -425,11 +425,7 @@ cache_create(char *name,		/* name of the cache */
 	  double i;
 	  PCpower = 0;
 	  for(i=lines;i>1;i=i/2)
-	  {
-		  PCmask=PCmask*2; // Add a 1 for each multiple of 2
 		  PCpower++;//2^power = number of lines
-	  }
-	  PCmask = PCmask-1;//to make it all 1's
   }
 
   /* ECE552 Assignment 3 - END CODE*/
@@ -586,7 +582,7 @@ void open_ended_prefetcher(struct cache_t *cp, md_addr_t addr) {
 		RPT[index].prev_addr=addr;
 
 		//if you are not in no-pred, and the cahce is not in block then go do a prefetch.
-		if(RPT[index].state==1 || RPT[index].state==0
+		if( (RPT[index].state==1 || RPT[index].state==0 )
 			&& !cache_probe(cp, addr + RPT[index].stride))
 		   cache_access(cp, Read, addr + RPT[index].stride, NULL, 1, (tick_t) 0, NULL, NULL, 1);
 	}
