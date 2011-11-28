@@ -412,29 +412,18 @@ cache_create(char *name,		/* name of the cache */
   /* ECE552 Assignment 3 - BEGIN CODE*/
 
   //if stride, create the RPT
-  if(prefetch_type>2)
+  if(prefetch_type>=2)
   {
-	  //dynamically allocate the correct number of RPT entries
-	  RPT = malloc(sizeof(struct RPTLine)*prefetch_type);
-	  double i;
-	  PCmask=1;//mask is for which bits of the PC correspond to the tag
-	  PCpower = 1;
-	  for(i=prefetch_type;i>1;i=i/2)
-	  {
-		  PCmask=PCmask*2; // Add a 1 for each multiple of 2
-		  PCpower++;//2^power = number of lines
-	  }
-	  PCmask = PCmask-1;//to make it all 1's
-  }
-
-  if(prefetch_type==2)//open prefetcher
-  {
-	  int lines = 65536;
+	  int lines = prefetch_type;
+	  if(lines==2)//if it is open, we know how many lines we want!
+		  lines=65536;
 	  //dynamically allocate the correct number of RPT entries
 	  RPT = malloc(sizeof(struct RPTLine)*lines);
+	  //mask is for which bits of the PC correspond to the tag
+	  PCmask=lines-1;
+
 	  double i;
-	  PCmask=1;//mask is for which bits of the PC correspond to the tag
-	  PCpower = 1;
+	  PCpower = 0;
 	  for(i=lines;i>1;i=i/2)
 	  {
 		  PCmask=PCmask*2; // Add a 1 for each multiple of 2
@@ -442,6 +431,7 @@ cache_create(char *name,		/* name of the cache */
 	  }
 	  PCmask = PCmask-1;//to make it all 1's
   }
+
   /* ECE552 Assignment 3 - END CODE*/
   return cp;
 }
