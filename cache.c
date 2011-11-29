@@ -416,7 +416,7 @@ cache_create(char *name,		/* name of the cache */
   {
 	  int lines = prefetch_type;
 	  if(lines==2)//if it is open, we know how many lines we want!
-		  lines=65536;
+		  lines=512;
 	  //dynamically allocate the correct number of RPT entries
 	  RPT = malloc(sizeof(struct RPTLine)*lines);
 	  //mask is for which bits of the PC correspond to the tag
@@ -542,6 +542,7 @@ void next_line_prefetcher(struct cache_t *cp, md_addr_t addr) {
 
 /* Open Ended Prefetcher */
 void open_ended_prefetcher(struct cache_t *cp, md_addr_t addr) {
+
 	//get rid of unused bottom bits
 	unsigned int PC = (unsigned int)get_PC() >> 3;
 	//calculate the index of RPT
