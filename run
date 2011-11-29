@@ -1,8 +1,30 @@
-make sim-cache
+#!/bin/bash
 
-./sim-cache -config cache-config/cache-lru-stride.cfg /cad2/ece552f/benchmarks/compress.eio
+ run_benchmark() {
+    echo "Making"
+    make sim-cache &> /dev/null
+   echo "Running $2 benchmark with $1 prefetcher"
+   ./sim-cache -redir:sim benchmark-output/$1-$2 \
+     -redir:prog /dev/null \
+     -config cache-config/cache-lru$3.cfg /cad2/ece552f/benchmarks/$2.eio
+ }
 
-./sim-cache -config cache-config/cache-lru-stride.cfg /cad2/ece552f/benchmarks/gcc.eio
+ mkdir -p benchmark-output
+ for bmark in 'compress' 'gcc' 'go'; do
+#run_benchmark 'baseline' $bmark
+   #for prefetcher in 'stride' 'nextline' 'open'; do
+    for prefetcher in 'open'; do
+run_benchmark $prefetcher $bmark "-$prefetcher"
+   done
+done
 
-./sim-cache -config cache-config/cache-lru-stride.cfg /cad2/ece552f/benchmarks/go.eio
-
+#for prefetcher in 'baseline' 'stride' 'nextline' 'open'; do
+for prefetcher in 'open'; do
+echo "$prefetcher:"
+   echo "============================"
+   for bmark in 'compress' 'gcc' 'go'; do
+echo $bmark
+     grep '^dl1.miss_rate' benchmark-output/$prefetcher-$bmark
+   done
+echo
+done
