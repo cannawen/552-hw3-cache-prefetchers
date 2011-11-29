@@ -582,7 +582,7 @@ void open_ended_prefetcher(struct cache_t *cp, md_addr_t addr) {
 		//update prev_addr
 		RPT[index].prev_addr=addr;
 
-		//if you are not in no-pred, and the cahce is not in block then go do a prefetch.
+		//if you are not in no-pred, and the cache is not in block then go do a prefetch.
 		if( (RPT[index].state==1 || RPT[index].state==0 )
 			&& !cache_probe(cp, addr + RPT[index].stride))
 		   cache_access(cp, Read, addr + RPT[index].stride, NULL, 1, (tick_t) 0, NULL, NULL, 1);
