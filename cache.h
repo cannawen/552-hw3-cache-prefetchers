@@ -360,7 +360,8 @@ struct OpenRPTLine
     int tag;
     int prev_addr;
     int prev_prev_addr;
-    int stride;
+    int stride1;
+    int stride2;
     int state;
 };
 
