@@ -353,6 +353,21 @@ struct RPTLine
 
 struct RPTLine *RPT;
 
+
+
+struct OpenRPTLine
+{
+    int tag;
+    int prev_addr;
+    int prev_prev_addr;
+    int stride;
+    int state;
+};
+
+struct OpenRPTLine *OpenRPT;
+
+
+
 int PCmask; // mask for getting the PC tag
 int PCpower; //2^power = number of lines
 

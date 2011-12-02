@@ -548,31 +548,31 @@ void open_ended_prefetcher(struct cache_t *cp, md_addr_t addr) {
 	//calculate the index of RPT
 	int index = PC & PCmask;
 
-	if (RPT[index].tag==PC>>PCpower)//if block is in RPT
+	if (OpenRPT[index].tag==PC>>PCpower)//if block is in RPT
 	{
 		//the new stride we see
-		int newstride = addr - (RPT[index].prev_addr);
+		int newstride = addr - (OpenRPT[index].prev_addr);
 		//is new stride same as previous?
-		int samestride = (newstride==RPT[index].stride);
+		int samestride = (newstride==OpenRPT[index].stride);
 
 		//if you are not in steady state, update stride.
-		if(RPT[index].state!=1)
-			RPT[index].stride = newstride;
+		if(OpenRPT[index].state!=1)
+			OpenRPT[index].stride = newstride;
 
 		//update state
-		switch(RPT[index].state)
+		switch(OpenRPT[index].state)
 		{
 			case 0://initial state
-				RPT[index].state = samestride ? 1 : 2;
+				OpenRPT[index].state = samestride ? 1 : 2;
 				break;
 			case 1://steady state
-				RPT[index].state = samestride ? 1 : 0;
+				OpenRPT[index].state = samestride ? 1 : 0;
 				break;
 			case 2://transient state
-				RPT[index].state = samestride ? 1 : 3;
+				OpenRPT[index].state = samestride ? 1 : 3;
 				break;
 			case 3://no pred
-				RPT[index].state = samestride ? 2 : 3;
+				OpenRPT[index].state = samestride ? 2 : 3;
 				break;
 			default:
 				assert(-1);
@@ -580,19 +580,19 @@ void open_ended_prefetcher(struct cache_t *cp, md_addr_t addr) {
 		}
 
 		//update prev_addr
-		RPT[index].prev_addr=addr;
+		OpenRPT[index].prev_addr=addr;
 
 		//if you are not in no-pred, and the cache is not in block then go do a prefetch.
-		if( (RPT[index].state==1 || RPT[index].state==0 )
-			&& !cache_probe(cp, addr + RPT[index].stride))
-		   cache_access(cp, Read, addr + RPT[index].stride, NULL, 1, (tick_t) 0, NULL, NULL, 1);
+		if( (OpenRPT[index].state==1 || OpenRPT[index].state==0 )
+			&& !cache_probe(cp, addr + OpenRPT[index].stride))
+		   cache_access(cp, Read, addr + OpenRPT[index].stride, NULL, 1, (tick_t) 0, NULL, NULL, 1);
 	}
 	else//block is not in RPT
 	{
-		RPT[index].tag=PC>>PCpower;
-		RPT[index].prev_addr=(int)addr;
-		RPT[index].state=0;
-		RPT[index].stride=0;
+		OpenRPT[index].tag=PC>>PCpower;
+		OpenRPT[index].prev_addr=(int)addr;
+		OpenRPT[index].state=0;
+		OpenRPT[index].stride=0;
 	}
 }
 
